@@ -1,0 +1,17 @@
+# Python / Backend
+backend/venv/
+__pycache__/
+*.pyc
+
+# Node / Frontend
+clarityai-mvp/node_modules/
+clarityai-mvp/build/
+.pnp
+.pnp.js
+
+# Sensitive Files
+.env
+credentials.json
+
+# OS files
+.DS_Store
