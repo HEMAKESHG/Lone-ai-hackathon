@@ -1,4 +1,5 @@
-ClarityAI 📜✨
+# ClarityAI 📜✨
+
 From Complexity to Clarity: An AI-powered legal assistant to demystify documents, identify risks, and connect you with help.
 
 The Problem
@@ -27,19 +28,4 @@ Data Sourcing: Google Places API
 
 Document Processing: PyMuPDF
 
-How to Run Locally
-Backend Setup:
 
-cd backend
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirements.txt # (You should create this file)
-# Add your .env file with API keys
-python app.py
-
-Frontend Setup:
-
-cd clarityai-mvp
-npm install
-npm start
-the  project
