@@ -6,8 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Upload, FileText, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 
+const API_KEY = "YOUR_API_KEY"; // <-- Replace with your actual API key
+
 const FileUploadZone = () => {
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<Array<{
     name: string;
@@ -16,50 +17,79 @@ const FileUploadZone = () => {
   }>>([]);
   const { toast } = useToast();
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
-    files.forEach((file) => {
-      // Simulate upload progress
-      setIsUploading(true);
-      setUploadProgress(0);
-      
+    if (files.length === 0) {
+      toast({
+        title: "No file selected",
+        description: "Please select a file to upload.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Process each file
+    for (const file of files) {
       const fileName = file.name;
       setUploadedFiles(prev => [...prev, { name: fileName, status: 'analyzing' }]);
+      setIsUploading(true);
+
+      const formData = new FormData();
+      formData.append('file', file);
       
-      // Simulate analysis process
-      const interval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setIsUploading(false);
-            
-            // Simulate risk assessment result
-            const riskLevels = ['low', 'medium', 'high'] as const;
-            const randomRisk = riskLevels[Math.floor(Math.random() * riskLevels.length)];
-            
-            setUploadedFiles(current => 
-              current.map(f => 
-                f.name === fileName 
-                  ? { ...f, status: randomRisk === 'high' ? 'risk-detected' : 'complete', riskLevel: randomRisk }
-                  : f
-              )
-            );
-            
-            if (randomRisk === 'high') {
-              toast({
-                title: "Risk Alert!",
-                description: `High-risk clauses detected in ${fileName}`,
-                variant: "destructive",
-              });
-            }
-            
-            return 100;
-          }
-          return prev + 10;
+      try {
+        const response = await fetch('http://localhost:3000/analyze', {
+          method: 'POST',
+          headers: {
+            'x-api-key': API_KEY,
+          },
+          body: formData,
         });
-      }, 200);
-    });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || `Failed to analyze file: ${fileName}`);
+        }
+
+        // Update the file status based on the backend response
+        const newAnalysis = result.analysis;
+        const riskLevel = newAnalysis?.risk?.level?.toLowerCase() || 'low';
+        
+        setUploadedFiles(prev => 
+          prev.map(f => 
+            f.name === fileName 
+              ? { 
+                  ...f, 
+                  status: riskLevel === 'high' ? 'risk-detected' : 'complete', 
+                  riskLevel: riskLevel as 'low' | 'medium' | 'high'
+                }
+              : f
+          )
+        );
+
+        if (riskLevel === 'high') {
+          toast({
+            title: "Risk Alert!",
+            description: `High-risk clauses detected in ${fileName}`,
+            variant: "destructive",
+          });
+        }
+
+      } catch (err) {
+        console.error(err);
+        toast({
+          title: "Analysis Failed",
+          description: `Failed to analyze ${fileName}. Please check the console for details.`,
+          variant: "destructive",
+        });
+        setUploadedFiles(prev => 
+          prev.map(f => f.name === fileName ? { ...f, status: 'complete', riskLevel: 'low' } : f)
+        );
+      }
+    }
+    setIsUploading(false);
   };
 
   const supportedFormats = ['PDF', 'DOCX', 'TXT', 'JPG', 'PNG'];
@@ -92,7 +122,7 @@ const FileUploadZone = () => {
             id="file-upload"
           />
           <label htmlFor="file-upload">
-            <Button className="bg-legal-gold hover:bg-legal-gold/90 text-legal-navy" asChild>
+            <Button className="bg-legal-gold hover:bg-legal-gold/90 text-legal-navy" disabled={isUploading} asChild>
               <span className="cursor-pointer">Select Files</span>
             </Button>
           </label>
@@ -110,10 +140,12 @@ const FileUploadZone = () => {
         {isUploading && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-legal-text">Analyzing document...</span>
-              <span className="text-sm text-legal-text">{uploadProgress}%</span>
+              <span className="text-sm text-legal-text">Analyzing documents...</span>
+              <span className="text-sm text-legal-text">
+                {uploadedFiles.filter(f => f.status === 'analyzing').length} pending
+              </span>
             </div>
-            <Progress value={uploadProgress} className="h-2" />
+            <Progress value={uploadedFiles.filter(f => f.status === 'analyzing').length > 0 ? 50 : 100} className="h-2" />
           </div>
         )}
 
@@ -136,23 +168,19 @@ const FileUploadZone = () => {
                       </Badge>
                     </>
                   )}
-                  {file.status === 'complete' && (
+                  {file.status !== 'analyzing' && (
                     <>
-                      <CheckCircle className="h-4 w-4 text-status-success" />
+                      {file.riskLevel === 'high' ? (
+                        <AlertTriangle className="h-4 w-4 text-risk-high" />
+                      ) : (
+                        <CheckCircle className="h-4 w-4 text-status-success" />
+                      )}
                       <Badge className={`${
                         file.riskLevel === 'low' ? 'bg-risk-low' :
                         file.riskLevel === 'medium' ? 'bg-risk-medium' :
                         'bg-risk-high'
                       } text-white`}>
                         {file.riskLevel?.toUpperCase()} RISK
-                      </Badge>
-                    </>
-                  )}
-                  {file.status === 'risk-detected' && (
-                    <>
-                      <AlertTriangle className="h-4 w-4 text-risk-high" />
-                      <Badge variant="destructive">
-                        RISK DETECTED
                       </Badge>
                     </>
                   )}

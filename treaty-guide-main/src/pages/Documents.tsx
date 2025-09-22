@@ -32,7 +32,8 @@ import {
 import FileUploadZone from '@/components/FileUploadZone';
 
 const Documents = () => {
-  const [showUpload, setShowUpload] = useState(false);
+  // We've changed the initial state to 'true' so the upload zone is visible by default.
+  const [showUpload, setShowUpload] = useState(true);
 
   const documents = [
     {
