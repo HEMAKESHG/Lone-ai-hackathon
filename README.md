@@ -40,7 +40,7 @@ git clone <your-repo-url>
 cd <your-repo-folder>
 ```
 
-2. Setup Backend
+###2. Setup Backend
 
 Navigate to the backend directory to install dependencies and start the server.
 ```Bash
@@ -50,7 +50,8 @@ npm install
 npm start
 ```
 The backend server typically runs on http://localhost:3000.
-3. Setup Frontend
+
+###3. Setup Frontend
 
 Open a new terminal and navigate to the frontend directory.
 ```Bash
@@ -59,8 +60,9 @@ cd treaty-guide-main
 npm install
 npm run dev
 ```
+
 ##The frontend will launch, usually on http://localhost:5173.
-##📂 Project Structure
+###📂 Project Structure
 Plaintext
 ```
 ├── backend/                  # Express server & API routes
@@ -74,11 +76,14 @@ Plaintext
 │
 └── README.md                 # Project documentation
 ```
-🤝 Contributing
+
+###🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-📄 License
+
+###📄 License
 
 This project is licensed under the ISC License.
+
 
 
