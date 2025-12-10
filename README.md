@@ -59,10 +59,10 @@ cd treaty-guide-main
 npm install
 npm run dev
 ```
-The frontend will launch, usually on http://localhost:5173.
-📂 Project Structure
+##The frontend will launch, usually on http://localhost:5173.
+##📂 Project Structure
 Plaintext
-
+```
 ├── backend/                  # Express server & API routes
 │   ├── index.js             # Server entry point
 │   └── package.json         # Backend dependencies (Tesseract, PDF-parse, etc.)
@@ -73,11 +73,12 @@ Plaintext
 │   └── package.json         # Frontend dependencies (React, Tailwind, Recharts)
 │
 └── README.md                 # Project documentation
-
+```
 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 📄 License
 
 This project is licensed under the ISC License.
+
 
